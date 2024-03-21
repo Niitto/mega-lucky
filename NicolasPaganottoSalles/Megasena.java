@@ -27,10 +27,10 @@ public class Megasena{
 
     // construtor da mega sena
     public Megasena(){
-        this.apostasMap = new HashMap<>();
-        this.sorteados = new ArrayList<>();
-        this.apostasLista = new ArrayList<>();
-        this.ganhadores = new ArrayList<>();
+        this.apostasMap = new HashMap<Integer, ArrayList<Aposta>>();
+        this.sorteados = new ArrayList<Integer>();
+        this.apostasLista = new ArrayList<Aposta>();
+        this.ganhadores = new ArrayList<Aposta>();
         this.ctrl_registro = 1000;
         this.rodadas = 0;
     }
@@ -76,7 +76,7 @@ public class Megasena{
                 case 3:
                     // passa para confirmacao
                     continuar = true;
-                    confirma_executar();
+                    finalizar_e_sortear();
                     break;
 
                 default:
@@ -89,47 +89,86 @@ public class Megasena{
 
     // metodo para executar o sorteio e realizar a apuracao dos votos
     private void executar(){
-
-        addApostasEmHash();
-
         System.out.println("\n========= Iniciando sorteio =========");
-
-        sorteados.add(0);
-        sorteados.add(1);
-        sorteados.add(2);
-        sorteados.add(3);
-        sorteados.add(4);
-
-
-        boolean tem_vencedor = false;
+        
         do{
+            //em teste, inicializa arrays manualmente
+            sorteio_teste();
+            //sorteio();
+            apura_votos();
             
-            if(!tem_vencedor){
-                //sorteio();
-                // em teste, inicializar um array arbitrariamente
-            }else{
-                apura_votos();
-            }
-            
-        }while(tem_vencedor != true || rodadas < 25);
+        }while(verificaGanhadores() == true || rodadas < 25);
         
         terminar();
         
     }
 
     private void terminar(){
-        System.out.println("ACABO");
-    }
-
-    private void apura_votos(){
-        System.out.println("CHEGUEI");
-        for(Integer i : sorteados){
-            if(apostasMap.containsKey(i)) addGanhadores(i);
+        System.out.println("\n========= FIM DA MEGA SENA! =========");
+        if(verificaGanhadores() == true){
+            System.out.println("Ganhador(es) desta edição: ");
+            for(Aposta a : ganhadores) System.out.println(a.toString());
+        }else{
+            System.out.println("Não teve nenhum ganhador nesta edição!");
         }
     }
 
-    private void addGanhadores(Integer i){
-        for(Aposta a : apostasMap.get(i)) ganhadores.add(a);
+    private void apura_votos(){
+        // para cada numero sorteado(filtra as opcoes impossiveis)
+        for(Integer integer : sorteados){
+            // para cada aposta desta chave do hashmap
+            // e se a chave existir(numero sorteado) no hashmap
+            if(apostasMap.get(integer) != null){
+                for(Aposta ap : apostasMap.get(integer)){
+                    //aux = ap.getNumerosRef();
+                    if(contaAcertos(ap.getNumerosRef()) == 5) ganhadores.add(ap);
+                    
+                }
+            }
+        }
+    }
+
+    private int contaAcertos(int[] arr){
+        int acerto = 0;
+        for(int i : arr){
+            for(Integer j : sorteados){
+                if(Integer.valueOf(i) == j) acerto++;
+            }
+        }
+        return acerto;
+    }
+
+    private boolean verificaGanhadores(){
+        boolean ver = (ganhadores.isEmpty() == true) ? false : true;
+        return ver;
+    }
+
+    private void sorteio_teste(){
+        // +1 rodada
+        setRodadas();
+
+        System.out.println("\nRodada "+getRodadas()+": Sorteando...");
+
+        if(sorteados.isEmpty()){
+            sorteados.add(1);
+            sorteados.add(2);
+            sorteados.add(3);
+            sorteados.add(4);
+            sorteados.add(5);
+        }
+        else{
+            int random;
+            boolean feito = false;
+            
+            do{
+                random = ThreadLocalRandom.current().nextInt(1, 51);
+                if(sorteados.contains(random) != true){
+                    sorteados.add(random);
+                    feito = true;
+                } 
+            }while(feito != true);
+             
+        }
     }
 
     // se método for chamado novamente/se array de numeros ja estiver cheio, adiciona apenas um
@@ -163,15 +202,15 @@ public class Megasena{
     private void popula_sorteados(int [] arr){
         
         surpresinha(arr);
-        System.out.println("FOI, HORA DE PASSAR PRO ARRAYLIST");
-        System.out.println(Arrays.toString(arr));
+        //System.out.println("\nFOI, HORA DE PASSAR PRO ARRAYLIST");
+        //System.out.println(Arrays.toString(arr));
         for (int n : arr) sorteados.add(n);
-        System.out.println("FOI, ARRAYLIST CRIADO!");
-        System.out.println(sorteados.toString());
+        //System.out.println("FOI, ARRAYLIST CRIADO!");
+        //System.out.println(sorteados.toString());
     }
 
     // metodo usado para confirmar a passagem da fase inicial para a fase final do jogo
-    private void confirma_executar(){
+    private void finalizar_e_sortear(){
         int confirmar_token;
         
         // Nota: depois de passar um perrengue por conta de um bug nao resolvido com o scanner, descobri que a linha abaixo limpa o buffer do scanner e nao faz com que ele pule comandos
@@ -208,7 +247,6 @@ public class Megasena{
 
         boolean sair;
         do{
-            //int [] array_sortudo = new int[5];
             
             // cria a aposta e aumenta o numero de registro para a proxima aposta
             Aposta ticket = new Aposta(reg_nome, reg_cpf, getCtrl_Registro(), gerar_numeros());
@@ -221,7 +259,7 @@ public class Megasena{
             addApostasEmHash(ticket);
 
             // pergunta se sera gerado uma nova aposta
-            System.out.println("Apostador, gostaria de realizar uma nova aposta? \n1: Sim \n2: Não");
+            System.out.println("\nApostador, gostaria de realizar uma nova aposta? \n1: Sim \n2: Não");
             System.out.print(">> ");
             int escolha = input.nextInt();
             sair = (escolha == 1) ? false : true;
@@ -251,14 +289,15 @@ public class Megasena{
                 System.out.println("Opção inválida.");
         }
 
-        System.out.println("\nARRAY FINAL: "+Arrays.toString(arr));
+        //System.out.println("\nARRAY FINAL: "+Arrays.toString(arr));
         return arr;
     }
 
     // metodo auxiliar em gerar_numeros(), opcao para escolher numeros a dedo
     private void escolhe_numeros(int [] arr){
+                
         int my_int;
-        int i = 0;
+        int i = 1;
         do{
             System.out.print(">> ");
             my_int = input.nextInt();
@@ -277,8 +316,8 @@ public class Megasena{
             new_int = ThreadLocalRandom.current().nextInt(1, 51);
             if(repetido(arr, new_int) == false){
                 arr[i] = new_int;
-                System.out.println("Int: "+ new_int);
-                System.out.println("Arr: "+ Arrays.toString(arr));
+                //System.out.println("Int: "+ new_int);
+                //System.out.println("Arr: "+ Arrays.toString(arr));
                 i++;
             }
             
@@ -304,15 +343,17 @@ public class Megasena{
         for (Aposta a : apostasLista) System.out.println(a);
     }
 
-    // adiciona um conjunto <numero, aposta> em apostasMap
-    private void addApostasEmHash(){
-        
-        System.out.println("Este array acabou de ser adicionado ao hash: "+Arrays.toString(aux));
-        for(int i : aux) apostasMap.put(Integer.valueOf(i), aposta);
-        System.out.println("\nKeySet: "+apostasMap.keySet());
-        System.out.println("Values: "+apostasMap.values());
-        System.out.println("EntrySet: "+apostasMap.entrySet());
-
+    // adiciona um conjunto <integer(numero sorteado), integer(registro)> em apostasMap
+    private void addApostasEmHash(Aposta aposta){
+        int[] aux = aposta.getNumerosRef();
+        //System.out.println("Este array acabou de ser adicionado ao hash: "+Arrays.toString(aux));
+        for(int i : aux){
+            if (apostasMap.containsKey(i) != true) apostasMap.put(i, new ArrayList<Aposta>());
+            apostasMap.get(Integer.valueOf(i)).add(aposta);
+        }
+        //System.out.println("\nKeySet: "+apostasMap.keySet());
+        //System.out.println("Values: "+apostasMap.values());
+        //System.out.println("EntrySet: "+apostasMap.entrySet());
 
     }
 

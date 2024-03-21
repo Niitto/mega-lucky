@@ -15,9 +15,6 @@ public class Aposta{
         this.numeros = numeros;
     }
 
-    // construtor vazio/default  --- SERA Q VALE A PENA A IMPEMENTAÇÃO?
-    //public Aposta(){};
-
     // getters e setters
     public String getNome(){
         return nome;
@@ -54,6 +51,6 @@ public class Aposta{
 
     @Override
     public String toString(){
-        return "Nome: "+getNome()+" - CPF: "+getCpf()+" - Registro: "+ getRegistro()+" - Ticket: "+getNumeros();
+        return "\nNome: "+getNome()+" - CPF: "+getCpf()+" - Registro: "+ getRegistro()+" - Ticket: "+getNumeros();
     }
 }
