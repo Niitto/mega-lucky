@@ -45,25 +45,23 @@ public class App{
         boolean sair = false;
         do{
             System.out.println("\n========= Menu principal =========");
-            System.out.println("0: Iniciar nova Mega Sena \n1: Sair \n2: TESTE");
+            System.out.println("1: Iniciar nova Mega Sena \n2: Sair ");
             System.out.print(">> ");
             
             int ans = input.nextInt();
             switch(ans){
-                case 0:
+                case 1:
                     //chama metodo para executar este processo
                     //cria objeto megasena e da inicio ao jogo?
                     Megasena megasena = new Megasena();
                     megasena.iniciar();
                     break;
                     //System.out.println("0: Registrar nova aposta \n1: Listar apostas \n2: Finalizar periodo de apostas e executar sorteio");
-                case 1:
+                case 2:
                     sair = true;
                     System.out.println("\nPrograma finalizado");
                     break;
-                case 2:
-                    System.out.println("\nTESTE");
-                    break;
+
                 default:
                     System.out.println("\nAVISO: ESCOLHA INVÁLIDA");
                     break;

@@ -4,7 +4,7 @@ import java.util.*;
 //CLASSE CONTROLE DA MEGA SENA
 public class Megasena{
 
-    // estrutura para referenciar cada numero da sorte com cada apostador que o escolheu
+    // estrutura para referenciar cada numero da sorte com cada apostador que o escolheu e calcular o vencedor
     private HashMap<Integer, ArrayList<Aposta>> apostasMap;
 
     // estrutura para guardar os numeros sorteados
@@ -13,12 +13,14 @@ public class Megasena{
     // estrutura para guardar apenas as apostas
     private ArrayList<Aposta> apostasLista;
 
-    // DESCARTAVEL?
     // estrutura para guardar o(s) ganhador(es)
-    private ArrayList<Aposta> ganhou;
+    private ArrayList<Aposta> ganhadores;
 
     // variavel que controla o número de registro de cada apostador
     private int ctrl_registro;
+
+    // grava quantas rodadas de sorteio foram executadas
+    private int rodadas;
 
     // singleton para que seja usado o scanner instanciado na classe app
     private Scanner input = App.getScanner();
@@ -28,50 +30,163 @@ public class Megasena{
         this.apostasMap = new HashMap<>();
         this.sorteados = new ArrayList<>();
         this.apostasLista = new ArrayList<>();
-        this.ganhou = new ArrayList<>();
+        this.ganhadores = new ArrayList<>();
         this.ctrl_registro = 1000;
-        //iniciar(); //testar mais tarde
+        this.rodadas = 0;
     }
 
     // getters e setters
-    int getCtrl_Registro(){
+    private int getCtrl_Registro(){
         return ctrl_registro;
     }
     //nota: como queremos aumentar de um em um os registros, deixo o set sem receber parametro e apenas somo um.
-    void setCtrl_Registro(){
-        this.ctrl_registro = ctrl_registro+1;
+    private void setCtrl_Registro(){
+        this.ctrl_registro = ctrl_registro + 1;
+    }
+
+    private int getRodadas(){
+        return rodadas;
+    }
+    private void setRodadas(){
+        this.rodadas = rodadas + 1;
     }
 
     // menu para coordenar as funcoes do jogo da mega sena
-    // while !"avancar" > continua no loop das apostas
     public void iniciar(){
 
         boolean continuar = false;
         do{
             System.out.println("\nREGISTRO ESTA EM: "+getCtrl_Registro());
             System.out.println("\n========= Fase de apostas =========");
-            System.out.println("0: Registrar nova aposta \n1: Listar apostas \n2: Finalizar periodo de apostas e executar sorteio");
+            System.out.println("1: Registrar nova aposta \n2: Listar apostas \n3: Finalizar periodo de apostas e executar sorteio");
             System.out.print(">> ");
 
             int ans = input.nextInt();
             switch(ans){
-                case 0:
+                case 1:
                     //registrar nova aposta
                     registrar_aposta();
                     break;
 
-                case 1:                  
+                case 2:                  
                     //listar apostas
                     apresenta_apostas();
                     break;
 
-                case 2:
-                    //TODO: finalizar periodo de apostas e iniciar sorteio
-                    //chamada do metodo sorteio?
+                case 3:
+                    // passa para confirmacao
+                    continuar = true;
+                    confirma_executar();
+                    break;
+
+                default:
+                    System.out.println("AVISO: ESCOLHA INVÁLIDA");
                     break;
 
                 }
         }while(continuar != true);
+    }
+
+    // metodo para executar o sorteio e realizar a apuracao dos votos
+    private void executar(){
+
+        addApostasEmHash();
+
+        System.out.println("\n========= Iniciando sorteio =========");
+
+        sorteados.add(0);
+        sorteados.add(1);
+        sorteados.add(2);
+        sorteados.add(3);
+        sorteados.add(4);
+
+
+        boolean tem_vencedor = false;
+        do{
+            
+            if(!tem_vencedor){
+                //sorteio();
+                // em teste, inicializar um array arbitrariamente
+            }else{
+                apura_votos();
+            }
+            
+        }while(tem_vencedor != true || rodadas < 25);
+        
+        terminar();
+        
+    }
+
+    private void terminar(){
+        System.out.println("ACABO");
+    }
+
+    private void apura_votos(){
+        System.out.println("CHEGUEI");
+        for(Integer i : sorteados){
+            if(apostasMap.containsKey(i)) addGanhadores(i);
+        }
+    }
+
+    private void addGanhadores(Integer i){
+        for(Aposta a : apostasMap.get(i)) ganhadores.add(a);
+    }
+
+    // se método for chamado novamente/se array de numeros ja estiver cheio, adiciona apenas um
+    // nota para self: poderia usar tokens/variáveis de verificação na própria classe
+    private void sorteio(){
+        // +1 rodada
+        setRodadas();
+
+        System.out.println("\nRodada "+getRodadas()+": Sorteando...");
+
+        if(sorteados.isEmpty()){
+            int [] aux = new int[5];
+            popula_sorteados(aux);
+        }
+        else{
+            int random;
+            boolean feito = false;
+            
+            do{
+                random = ThreadLocalRandom.current().nextInt(1, 51);
+                if(sorteados.contains(random) != true){
+                    sorteados.add(random);
+                    feito = true;
+                } 
+            }while(feito != true);
+             
+        }
+    }
+
+    // completa a lista de numeros sorteados
+    private void popula_sorteados(int [] arr){
+        
+        surpresinha(arr);
+        System.out.println("FOI, HORA DE PASSAR PRO ARRAYLIST");
+        System.out.println(Arrays.toString(arr));
+        for (int n : arr) sorteados.add(n);
+        System.out.println("FOI, ARRAYLIST CRIADO!");
+        System.out.println(sorteados.toString());
+    }
+
+    // metodo usado para confirmar a passagem da fase inicial para a fase final do jogo
+    private void confirma_executar(){
+        int confirmar_token;
+        
+        // Nota: depois de passar um perrengue por conta de um bug nao resolvido com o scanner, descobri que a linha abaixo limpa o buffer do scanner e nao faz com que ele pule comandos
+        //input.nextLine();
+        
+        //iniciar sorteio e apuração dos resultados
+        System.out.println("\nATENÇÃO: Uma vez que iniciado o sorteio, não será mais possível registrar novas apostas, deseja continuar? \n1: Confirmar \n2: Voltar ");
+        System.out.print(">> ");
+        confirmar_token = input.nextInt();
+        //confirmar_token.replaceAll("\\s", "");
+        
+        if(confirmar_token == 1){ 
+            executar(); 
+        }else{ 
+            iniciar();}
     }
 
     //com scanner
@@ -99,12 +214,11 @@ public class Megasena{
             Aposta ticket = new Aposta(reg_nome, reg_cpf, getCtrl_Registro(), gerar_numeros());
             setCtrl_Registro();
 
-            System.out.println(ticket.getNumeros());
-
             // add a lista de apostas
             apostasLista.add(ticket);
             
-            //TODO: add hashmap para sorteio
+            // add um ticket no hashmap para sorteio
+            addApostasEmHash(ticket);
 
             // pergunta se sera gerado uma nova aposta
             System.out.println("Apostador, gostaria de realizar uma nova aposta? \n1: Sim \n2: Não");
@@ -120,8 +234,9 @@ public class Megasena{
     private int[] gerar_numeros(){
 
         int [] arr = new int[5]; 
+        //System.out.println("Array inicializado: ");
+        //for(int n : arr) System.out.println("> "+ n);
         
-        for(int n : arr) System.out.println("> "+ n);
         System.out.println("\n1: Escolher números \n2: Gerar aleatoriamente");
         System.out.print(">> ");
         int ans = input.nextInt();
@@ -135,6 +250,7 @@ public class Megasena{
             default:
                 System.out.println("Opção inválida.");
         }
+
         System.out.println("\nARRAY FINAL: "+Arrays.toString(arr));
         return arr;
     }
@@ -158,7 +274,6 @@ public class Megasena{
         int new_int;
         int i = 0;
         do{
-            // nao precisa passar por todo o array, apenas nos locais que foram instanciados
             new_int = ThreadLocalRandom.current().nextInt(1, 51);
             if(repetido(arr, new_int) == false){
                 arr[i] = new_int;
@@ -171,6 +286,7 @@ public class Megasena{
     }
 
     // metodo auxiliar em surpresinha() e escolhe_numeros(), verifica se um numero gerado esta repetido
+    // param: um array, um numero
     private boolean repetido(int [] arr, int in){
         boolean repetido = false;
         for (int n = 0; n < arr.length; n++){
@@ -181,7 +297,6 @@ public class Megasena{
         }
         return repetido;
     }
-
     
     // metodo principal, recebe a lista de apostadores, onde ira mostrar todas as apostas de todos os jogadores
     private void apresenta_apostas(){
@@ -189,7 +304,16 @@ public class Megasena{
         for (Aposta a : apostasLista) System.out.println(a);
     }
 
-    private void sorteio(){
+    // adiciona um conjunto <numero, aposta> em apostasMap
+    private void addApostasEmHash(){
+        
+        System.out.println("Este array acabou de ser adicionado ao hash: "+Arrays.toString(aux));
+        for(int i : aux) apostasMap.put(Integer.valueOf(i), aposta);
+        System.out.println("\nKeySet: "+apostasMap.keySet());
+        System.out.println("Values: "+apostasMap.values());
+        System.out.println("EntrySet: "+apostasMap.entrySet());
+
 
     }
+
 }

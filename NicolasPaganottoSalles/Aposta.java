@@ -6,7 +6,6 @@ public class Aposta{
     private String cpf;
     private int registro;
     private int numeros[];
-    //Registro 
 
     // construtor com parametros
     public Aposta(String nome, String cpf, int registro, int[] numeros){
@@ -46,6 +45,10 @@ public class Aposta{
 
     public String getNumeros(){
         return Arrays.toString(numeros);
+    }
+
+    public int[] getNumerosRef(){
+        return numeros;
     }
 
 
