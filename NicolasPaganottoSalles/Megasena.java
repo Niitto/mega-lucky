@@ -97,7 +97,7 @@ public class Megasena{
             //sorteio();
             apura_votos();
             
-        }while(verificaGanhadores() == true || rodadas < 25);
+        }while(verificaGanhadores() == false || rodadas < 25);
         
         terminar();
         
@@ -297,7 +297,7 @@ public class Megasena{
     private void escolhe_numeros(int [] arr){
                 
         int my_int;
-        int i = 1;
+        int i = 0;
         do{
             System.out.print(">> ");
             my_int = input.nextInt();
