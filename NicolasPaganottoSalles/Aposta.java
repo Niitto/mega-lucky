@@ -48,7 +48,6 @@ public class Aposta{
         return numeros;
     }
 
-
     @Override
     public String toString(){
         return "\nNome: "+getNome()+" - CPF: "+getCpf()+" - Registro: "+ getRegistro()+" - Ticket: "+getNumeros();

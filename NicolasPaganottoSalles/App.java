@@ -26,7 +26,7 @@ public class App{
     }
 
     // metodo auxiliar, escaneia uma string
-    protected static String scan_string() throws InputMismatchException{
+    protected static String scan_str() throws InputMismatchException{
                 
         System.out.print(">> ");
         String str = input.nextLine();
@@ -37,11 +37,8 @@ public class App{
 
     public static void main(String [] args){
 
-        //final Scanner input= new Scanner(System.in);
-
         System.out.println("Bem-vindo ao sistema da Mega Sena!");
 
-        //try(Scanner input = new Scanner(System.in)){
         boolean sair = false;
         do{
             System.out.println("\n========= Menu principal =========");
@@ -51,12 +48,10 @@ public class App{
             int ans = input.nextInt();
             switch(ans){
                 case 1:
-                    //chama metodo para executar este processo
-                    //cria objeto megasena e da inicio ao jogo?
                     Megasena megasena = new Megasena();
                     megasena.iniciar();
                     break;
-                    //System.out.println("0: Registrar nova aposta \n1: Listar apostas \n2: Finalizar periodo de apostas e executar sorteio");
+                    
                 case 2:
                     sair = true;
                     System.out.println("\nPrograma finalizado");
@@ -65,13 +60,10 @@ public class App{
                 default:
                     System.out.println("\nAVISO: ESCOLHA INVÁLIDA");
                     break;
-                    //throw new InputMismatchException("Escolha invalida");    
+                        
             }
         }while(sair != true);
-        //}
-        //catch(InputMismatchException e){
-        //    System.out.println("ASJEHFLAKJDLAW");
-        //}
+        
         closeScanner();
     }
 

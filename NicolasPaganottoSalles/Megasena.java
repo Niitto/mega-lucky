@@ -16,7 +16,7 @@ public class Megasena{
     // estrutura para guardar o(s) ganhador(es)
     private ArrayList<Aposta> ganhadores;
 
-    // variavel que controla o número de registro de cada apostador
+    // variavel que controla o número de registro de cada apostador, aumentando em um a cada criacao de aposta
     private int ctrl_registro;
 
     // grava quantas rodadas de sorteio foram executadas
@@ -108,18 +108,29 @@ public class Megasena{
 
     // fim da apuracao e apresentacao dos resultados
     private void terminar(){
+
+        int[] ints = new int[apostasMap.keySet().size()];
+
         System.out.println("\n========= FIM DA MEGA SENA! =========");
         System.out.println("\nNumeros sorteados: "+sorteados.toString());
         System.out.println("Foram executadas "+rodadas+" rodadas no total.");
+        
+        //metodo pra printar numeros mais escolhidos
+        prepara_sort(ints);
+        mais_sorteados(ints);
+
         if(verificaGanhador() == true){
+            
+            ganhadores.sort(null);
             System.out.println("\nGanhador(es) desta edição: "+ganhadores.size());
             for(Aposta a : ganhadores) System.out.println(a.toString());
+        
         }else{
             System.out.println("\nNão teve nenhum ganhador nesta edição!");
         }
     }
 
-    // metodo auxiliar focado na apuracao do sorteio, adiciona um ganhador a lista de ganhadores caso exista algum ticket da sorte com 5 acertos
+    // metodo auxiliar em apura_sorteio() focado na apuracao do sorteio, adiciona um ganhador a lista de ganhadores caso exista algum ticket da sorte com 5 acertos
     private void apura_sorteio(){
         // para cada numero sorteado(filtra as opcoes impossiveis)
         for(Integer integer : sorteados){
@@ -135,7 +146,7 @@ public class Megasena{
         }
     }
 
-    // metodo auxiliar em apura_sorteio, verifica os acertos do sorteio
+    // metodo auxiliar em apura_sorteio(), verifica os acertos do sorteio
     private int contaAcertos(int[] arr){
         int acerto = 0;
         for(int i : arr){
@@ -158,7 +169,56 @@ public class Megasena{
         return limite;
     }
 
-    // metodo auxiliar para testes, igual ao teste(), porem com prints a mais
+    //metodo auxiliar em terminar() que mostra os numeros mais sorteados
+    private void mais_sorteados(int [] ints){
+        System.out.println("\nEstes foram os 5 numeros mais sorteados! [numero - quantidade]");
+        for(int i = 0; i < 5; i++){
+            System.out.println(">>"+ints[i]+" - "+apostasMap.get(ints[i]).size());    
+        }
+    }
+
+    //metodo para preparar uma lista de numeros mais escolhidos do sorteio para ser ordenada, para ser usado dentro da chamada do quick sort
+    private void prepara_sort(int [] ints){
+        
+        int index = 0;
+        for(Integer in : apostasMap.keySet()){
+            ints[index] = in.intValue(); 
+            index++;
+        }
+        qs(ints, 0, 0);
+    }
+
+    //metodo que realiza ordenacao
+    private void qs(int[] arr, int l, int r){
+        if(r == 0){
+            r = arr.length-1;
+        }else{
+            int p = partition(arr, l, r);
+            qs(arr, l, p-1);
+            qs(arr, p+1, r);
+        }
+    }
+
+    private int partition(int[] arr, int l, int r) {
+        int aux;
+        int pivot = arr[r];
+        int i = l;
+        for(int j = l; j < r; j++){
+            if(arr[j] <= pivot){
+                aux = arr[j];
+                arr[j] = arr[i];
+                arr[i] = aux;
+                i = i+1;
+            }
+        }    
+        aux = arr[i];
+        arr[i] = arr[r];
+        arr[r] = aux;
+
+        return i;
+    }
+
+    // metodo auxiliar para testes, igual ao teste(), porem com prints a mais e lista de numeros sorteados criada "manualmente"
     @SuppressWarnings("unused")
     private void sorteio_teste(){
         // +1 rodada
@@ -221,7 +281,6 @@ public class Megasena{
         
         surpresinha(arr);
         for (int n : arr) sorteados.add(n);
-        System.out.println("FOI, ARRAYLIST CRIADO!");
         System.out.println(sorteados.toString());
     }
 
@@ -287,8 +346,8 @@ public class Megasena{
     private int[] gerar_numeros(){
 
         int [] arr = new int[5]; 
-        //System.out.println("Array inicializado: ");
-        //for(int n : arr) System.out.println("> "+ n);
+        //teste: System.out.println("Array inicializado: ");
+        //teste: for(int n : arr) System.out.println("> "+ n);
         
         System.out.println("\n1: Escolher números \n2: Gerar aleatoriamente");
         System.out.print(">> ");
@@ -303,8 +362,6 @@ public class Megasena{
             default:
                 System.out.println("Opção inválida.");
         }
-
-        //System.out.println("\nARRAY FINAL: "+Arrays.toString(arr));
         return arr;
     }
 
@@ -331,8 +388,6 @@ public class Megasena{
             new_int = ThreadLocalRandom.current().nextInt(1, 51);
             if(repetido(arr, new_int) == false){
                 arr[i] = new_int;
-                //System.out.println("Int: "+ new_int);
-                //System.out.println("Arr: "+ Arrays.toString(arr));
                 i++;
             }
             
@@ -361,15 +416,9 @@ public class Megasena{
     // adiciona um conjunto <integer(numero sorteado), integer(registro)> em apostasMap
     private void addApostasEmHash(Aposta aposta){
         int[] aux = aposta.getNumerosRef();
-        //System.out.println("Este array acabou de ser adicionado ao hash: "+Arrays.toString(aux));
         for(int i : aux){
             if (apostasMap.containsKey(i) != true) apostasMap.put(i, new ArrayList<Aposta>());
             apostasMap.get(Integer.valueOf(i)).add(aposta);
         }
-        //System.out.println("\nKeySet: "+apostasMap.keySet());
-        //System.out.println("Values: "+apostasMap.values());
-        //System.out.println("EntrySet: "+apostasMap.entrySet());
-
     }
-
 }
