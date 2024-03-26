@@ -173,7 +173,7 @@ public class Megasena{
     private void mais_sorteados(int [] ints){
         System.out.println("\nEstes foram os 5 numeros mais sorteados! [numero - quantidade]");
         for(int i = 0; i < 5; i++){
-            System.out.println(">>"+ints[i]+" - "+apostasMap.get(ints[i]).size());    
+            System.out.println("> "+ints[i]+" - "+apostasMap.get(ints[i]).size());    
         }
     }
 
