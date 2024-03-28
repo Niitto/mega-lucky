@@ -93,8 +93,7 @@ public class Megasena{
         // controle para sair do loop
         boolean ctrl = false;
         do{
-            
-            //em teste, inicializa arrays manualmente
+            //para teste, inicializa arrays escolhidos "a dedo"
             //sorteio_teste();
             sorteio();
             apura_sorteio();
@@ -115,7 +114,7 @@ public class Megasena{
         System.out.println("\nNumeros sorteados: "+sorteados.toString());
         System.out.println("Foram executadas "+rodadas+" rodadas no total.");
         
-        //metodo pra printar numeros mais escolhidos
+        //metodos pra printar numeros mais escolhidos
         prepara_sort(ints);
         mais_sorteados(ints);
 
@@ -132,7 +131,7 @@ public class Megasena{
 
     // metodo auxiliar em apura_sorteio() focado na apuracao do sorteio, adiciona um ganhador a lista de ganhadores caso exista algum ticket da sorte com 5 acertos
     private void apura_sorteio(){
-        // para cada numero sorteado(filtra as opcoes impossiveis)
+        // para cada numero sorteado no array dos sorteados(filtra as opcoes impossiveis direcionando a busca para apenas os numeros sorteados)
         for(Integer integer : sorteados){
             // para cada aposta desta chave do hashmap
             // e se a chave existir(numero sorteado) no hashmap
@@ -366,6 +365,7 @@ public class Megasena{
     }
 
     // metodo auxiliar em gerar_numeros(), opcao para escolher numeros a dedo
+    // param: um array qualquer
     private void escolhe_numeros(int [] arr){
                 
         int my_int;
@@ -381,6 +381,7 @@ public class Megasena{
     }
 
     // metodo auxiliar em gerar_numeros() e popula_sorteados(), opcao para escolher numeros aleatorios
+    // param: um array qualquer
     private void surpresinha(int [] arr){
         int new_int;
         int i = 0;
@@ -417,6 +418,7 @@ public class Megasena{
     private void addApostasEmHash(Aposta aposta){
         int[] aux = aposta.getNumerosRef();
         for(int i : aux){
+            // caso o numero sorteado nao exista ainda como index no hash, cria um novo arrayList<> para o index
             if (apostasMap.containsKey(i) != true) apostasMap.put(i, new ArrayList<Aposta>());
             apostasMap.get(Integer.valueOf(i)).add(aposta);
         }
